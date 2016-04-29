@@ -5,14 +5,14 @@ all: dependencies
 
 
 dependencies:
-	#sudo apt-get install python-pip iceweasel xvfb
-	sudo -H pip install --upgrade -r requirements.txt
+	@#sudo apt-get install python-pip iceweasel xvfb
+	@sudo -H pip install --upgrade -r requirements.txt
 
 
 test:
 	@echo "LINTING ***********************************************************************"
 	@pylint dashpi --rcfile=.pylintrc
-	@find ./dashpi/tests/ -name *.py | xargs pylint --rcfile=.pylintrc
+#	@find ./dashpi/tests/ -name *.py | xargs pylint --rcfile=.pylintrc
 	
 	@echo "UNIT TESTING ******************************************************************"
 
