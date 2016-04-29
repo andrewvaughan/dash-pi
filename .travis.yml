@@ -13,4 +13,4 @@ install:
 script:
   - python --version
   - pylint dashpi --rcfile=.pylintrc
-	- find ./dashpi/tests/ -name *.py | xargs pylint --rcfile=.pylintrc
+#  - find ./dashpi/tests/ -name *.py | xargs pylint --rcfile=.pylintrc
