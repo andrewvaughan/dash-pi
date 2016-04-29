@@ -12,4 +12,5 @@ install:
 
 script:
   - python --version
-  - make test
+  - pylint dashpi --rcfile=.pylintrc
+	- find ./dashpi/tests/ -name *.py | xargs pylint --rcfile=.pylintrc
