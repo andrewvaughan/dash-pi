@@ -30,6 +30,7 @@ import logging
 import os
 import subprocess
 import sys
+import time
 import traceback
 
 import argparse
@@ -52,17 +53,35 @@ def main(args):
             config = loadconfig(yml)
         
     except IOError:
-        raise SystemExit('The configuration file "%s" could not be found' % args.config)
+        logger.error('The configuration file "%s" could not be found', args.config)
+        return False
     
     logger.debug('Loaded.')
     
     
     # Ensure the user has set a browser
-    if not config or not config['browser'] or config['browser'] not in ['firefox', 'iceweasel', 'chrome', 'opera']:
-        raise SystemExit('Configuration option "browser" must be one of: firefox, iceweasel, chrome, ie, opera')
+    if not config or 'browser' not in config or config['browser'] not in ['firefox', 'iceweasel', 'chrome', 'opera']:
+        logger.error('Configuration option "browser" must be one of: firefox, iceweasel, chrome, ie, opera')
+        return False
     
     
     logger.debug('Browser set to "%s"', config['browser'])
+    
+    
+    # Get our delay
+    if 'delay' not in config:
+        logger.warn('No delay configured, defaulting to 15 seconds')
+        config['delay'] = 15
+    
+    if not isinstance(config['delay'], (int, long)) or config['delay'] <= 0:
+        logger.warn('Delay is not a whole, positive number, defaulting to 15 seconds')
+        config['delay'] = 15
+    
+    
+    # Ensure we have some dashboards and URLs
+    if 'dashboards' not in config or not isinstance(config['dashboards'], list) or len(config['dashboards']) <= 0:
+        logger.error('No dashboards defined')
+        return False
     
     
     # Check if the browser is already running
@@ -71,9 +90,8 @@ def main(args):
         process = subprocess.check_output(["pgrep", config['browser']])
     
         if process != "":
-            raise SystemExit(
-                "The \"%s\" browser is already running, please close and re-run DashPi." % config['browser']
-            )
+            logger.error("The \"%s\" browser is already running, please close and re-run DashPi.", config['browser'])
+            return False
         
     except subprocess.CalledProcessError:
         logger.debug('Browser not found.')
@@ -92,10 +110,31 @@ def main(args):
         browser = webdriver.Firefox()   # pylint: disable=redefined-variable-type
     
     
-    # Load a test URL
-    logger.debug("Loading URL int browser")
+    # Rotate through URLS
+    counter = 0
+    total = len(config['dashboards'])
     
-    browser.get('https://andrewvaughan.io/')
+    logger.info("Beginning rotation of %d dashboards at %d second intervals", total, config['delay'])
+    
+    while True:
+        dashboard = config['dashboards'][counter % total]
+        
+        if 'url' not in dashboard:
+            logger.warning('URL missing from dashboard #%d, skipping', (counter % total) + 1)
+            counter += 1
+            continue
+        
+        logger.debug("Loading dashboard #%d: %s", (counter % total) + 1, dashboard['url'])
+        
+        browser.get(dashboard['url'])
+        
+        counter += 1
+        time.sleep(config['delay'])
+    
+    
+    # Exit
+    logger.debug('Exiting')
+    return True
 
 
 
@@ -178,12 +217,9 @@ if __name__ == "__main__":
     
     # Launch and exit with the proper code
     try:
-        main(ARGS)
+        if not main(ARGS):
+            sys.exit(1)
         
-    except SystemExit, err:
-        LOGGER.error(str(err))
-        sys.exit(1)
-    
     except selenium.common.exceptions.WebDriverException, err:
         LOGGER.error("DashPi could not connect to the web browser.")
         LOGGER.error(str(err))
