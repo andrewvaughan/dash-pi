@@ -143,8 +143,8 @@ if __name__ == "__main__":
     # Setup runtime arguments
     PARSER = argparse.ArgumentParser(prog="dashpi", description='DashPi: the Rapsberry Pi web dashboard controller')
     
-    PARSER.add_argument('-c', '--config', default='~/dashpi.yml',
-                        help="configuration file (default: ~/dashpi.yml)")
+    PARSER.add_argument('-c', '--config', default=os.path.expanduser('~') + '/.dashpi.yml',
+                        help="configuration file (default: ~/.dashpi.yml)")
     
     PARSER.add_argument('-q', '--quiet', action='store_true',
                         help='prevents output to stdout')
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     if ARGS.log != None:
         SH_FILE = logging.FileHandler(ARGS.log)
 
-        ARGS.setFormatter(
+        SH_FILE.setFormatter(
             logging.Formatter(
                 fmt='[%(asctime)s] %(name)-12s :: %(levelname)-8s : %(message)s',
                 datefmt='%m-%d-%Y %H:%M:%S'

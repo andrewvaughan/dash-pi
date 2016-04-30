@@ -1,0 +1,7 @@
+browser : iceweasel
+delay   : 15
+
+dashboards:
+    - url : file:///opt/dashpi/welcome.html
+    - url : https://www.google.com/
+    - url : https://github.com/

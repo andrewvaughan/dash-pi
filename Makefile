@@ -4,8 +4,11 @@
 all: dependencies
 
 
+install: dependencies
+	./installer
+
+
 dependencies:
-	@#sudo apt-get install python-pip iceweasel xvfb
 	@sudo -H pip install --upgrade -r requirements.txt
 
 

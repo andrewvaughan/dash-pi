@@ -1,0 +1,208 @@
+#!/bin/bash
+
+INSTALL_TARGET="/opt/dashpi"
+USER_HOME=`pwd -P ~$USER`
+
+
+# Bash colors
+TEXT_RESET="\e[0m"
+TEXT_BOLD="\e[1m"
+TEXT_GREEN="\e[32m"
+TEXT_YELLOW="\e[33m"
+
+
+# print_step(steps, message)
+function print_step() {
+	echo ""
+	echo -e "${TEXT_BOLD}${TEXT_GREEN}Step ${TEXT_YELLOW}$1 of 11${TEXT_GREEN} :: ${TEXT_YELLOW}$2"
+	echo -e "${TEXT_GREEN}********************************************************************************"
+	echo -e "${TEXT_RESET}"
+}
+
+
+# Ensure the disk has been expanded
+TOTALDISK=$(df -P . | tail -1 | awk '{print $2}')
+if [ $TOTALDISK -lt 2097152 ]; then
+    echo "Warning: Total disk space is under 2GB - have you expanded your filesystem?"
+    exit 1
+fi
+
+
+# Stop DashPi if it's running
+print_step 1 "Stopping DashPi services (if running)"
+sudo service dashpi stop ||:
+
+
+# Enable Aptitude fancy reporting
+print_step 2 "Updating system packages"
+echo 'Dpkg::Progress-Fancy "1";' | sudo tee /etc/apt/apt.conf.d/99dashpi
+
+# Updating system packages
+sudo apt-get -y update
+sudo apt-get -y upgrade
+
+
+# Installing required dependencies
+print_step 3 "Installing system dependencies"
+sudo apt-get -y install \
+  policykit-1 rpi-update unzip upstart \
+  git-core python-pip python-yaml pylint python-selenium \
+  openbox x11-xserver-utils lightdm unclutter \
+  iceweasel gnash gnash-common browser-plugin-gnash lightspark browser-plugin-lightspark \
+  fonts-dejavu fonts-sil-gentium-basic ttf-mscorefonts-installer
+
+
+# Downloading the latest stable version of DashPi
+print_step 4 "Downloading latest stable release of DashPi"
+sudo rm -rf "$INSTALL_TARGET"
+sudo mkdir -p "$INSTALL_TARGET"
+
+cd "$INSTALL_TARGET"
+
+sudo git clone https://github.com/andrewvaughan/dash-pi "$INSTALL_TARGET"
+sudo git fetch --tags
+
+#STABLE_TAG=$(sudo git describe --tags `sudo git rev-list --tags --max-count=1`)
+STABLE_TAG="install"
+sudo git checkout $STABLE_TAG
+
+
+# Installing DashPi dependencies
+print_step 5 "Installing DashPi dependencies"
+sudo pip install --no-compile -r requirements.txt
+
+
+# Setting up DashPi service to start on startup by default
+print_step 6 "Installing service and startup scripts"
+cat <<EOT | sudo tee /etc/init/dashpi.conf
+# dashpi - The DashPi dashboard service
+
+description "The DashPi dashboard servce"
+author "Andrew Vaughan - https://andrewvaughan.io"
+
+setuid $USER
+
+start on runlevel [2345]
+stop on runlevel [016]
+
+script
+  exec python /opt/dashpi/dashpi -q -v -l /var/log/dashpi.log
+end script
+EOT
+
+
+# Bootstrapping the configuration file
+print_step 7 "Creatng base configuration file at '~/.dashpi.yml'"
+if [ ! -f "$USER_HOME/.dashpi.yml" ]; then
+    sudo cp "$INSTALL_TARGET/config-example.yml" "$USER_HOME/.dashpi.yml"
+else
+    echo "Configuration file exists...skipping"
+fi
+
+
+# Set the RaspberryPi configuration to not turn displays off
+print_step 8 "Configuring RaspberryPi display settings"
+sudo mkdir -p "$USER_HOME/.config/openbox"
+cat <<EOT | sudo tee "$USER_HOME/.config/openbox/environment"
+@unclutter -idle 0.1 -root
+@xset s noblank
+@xset s off
+@xset -dpms
+@sudo start dashpi
+EOT
+
+
+# Set the RaspberryPi to automatically login as the main user
+print_step 9 "Configuring auto-login into desktop"
+sudo systemctl set-default graphical.target
+
+cat <<EOT | sudo tee "/etc/lightdm/lightdm.conf"
+[LightDM]
+
+[SeatDefaults]
+autologin-user=$USER
+autologin-user-timeout=0
+
+[XDMCPServer]
+[VNCServer]
+EOT
+
+
+# # Setup iceweasel for selenium usage and kiosk mode
+print_step 10 "Configuring browser for kiosk mode"
+#
+# get_addon_id_from_xpi () { #path to .xpi file
+#     addon_id_line=`unzip -p $1 install.rdf | egrep '<em:id>' -m 1`
+#     addon_id=`echo $addon_id_line | sed "s/.*>\(.*\)<.*/\1/"`
+#     echo "$addon_id"
+# }
+#
+# get_addon_name_from_xpi () { #path to .xpi file
+#     addon_name_line=`unzip -p $1 install.rdf | egrep '<em:name>' -m 1`
+#     addon_name=`echo $addon_name_line | sed "s/.*>\(.*\)<.*/\1/"`
+#     echo "$addon_name"
+# }
+#
+# install_addon () {
+#     xpi="${PWD}/${1}"
+#     extensions_path=$2
+#     new_filename=`get_addon_id_from_xpi $xpi`.xpi
+#     new_filepath="${extensions_path}${new_filename}"
+#     addon_name=`get_addon_name_from_xpi $xpi`
+#     if [ -f "$new_filepath" ]; then
+#         echo "File already exists: $new_filepath"
+#         echo "Skipping installation for addon $addon_name."
+#     else
+#         cp "$xpi" "$new_filepath"
+#     fi
+# }
+#
+# mkdir -p /tmp/dashpi
+# cd /tmp/dashpi
+#
+# wget https://addons.mozilla.org/firefox/downloads/latest/243504/addon-243504-latest.xpi
+# install_addon addon-243504-latest.xpi "/usr/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/"
+#
+# mkdir -p "$USER_HOME/.mozilla/firefox/*.default"
+# cat <<EOT > "$USER_HOME/.mozilla/firefox/*.default/prefs.js"
+# user_pref("browser.startup.homepage", "file:///opt/dashpi/welcome.html");
+# EOT
+
+
+# # add in IETab2 GUID and remove IETab GUID
+#   cat ${pjsbase}/${userf} | grep extensions.enabledItems | /bin/sed 's/\")/\,\{1BC9BA34-1EED-42ca-A505-6D2F1A935BBB\}\:2\.12\.21\.1\")/' | /bin/sed 's/{77b819fa-95ad-4f2c-ac7c-486b356188a9}:1.5.20090525,//' > ${pjsbase}/tmp1
+#   cat ${pjsbase}/tmp1 | /bin/sed 's/0\.3\.8\.[0-9]*/0\.3\.8\.4/g' > ${pjsbase}/tmp
+#   /bin/sed /extensions.enabledItems/d ${pjsbase}/${userf} > ${pjsbase}/tmp2
+#   cat ${pjsbase}/tmp2 > ${pjsbase}/${userf}.new2
+#   cat ${pjsbase}/tmp >> ${pjsbase}/${userf}.new2
+# # add in IETab2 preferences
+#   echo user_pref\(\"extensions.ietab2.hasRun\"\,\ true\)\; >> ${pjsbase}/${userf}.new2
+#   echo user_pref\(\"extensions.ietab2.ietab2PrefsMigrated\"\,\ true\)\; >> ${pjsbase}/${userf}.new2
+#   echo user_pref\(\"extensions.ietab2.prefsMigrated\"\,\ true\)\; >> ${pjsbase}/${userf}.new2
+#   echo user_pref\(\"extensions.ietab2.version\"\,\ \"2.12.21.1\"\)\; >> ${pjsbase}/${userf}.new2
+#   echo user_pref\(\"extensions.update.notifyUser\"\,\ false\)\; >> ${pjsbase}/${userf}.new2
+# # if they have a preference list then migrate it
+#   if [ ! `cat ${pjsbase}/${userf} | grep user_pref\(\"ietab.filterlist\" | wc -l` -eq 0 ]; then
+#     echo "user_pref(\"extensions.ietab2.filterlist"`cat ${pjsbase}/${userf} | grep user_pref\(\"ietab.filterlist\" | sed 's/user\_pref(\"ietab\.filterlist//'`"" >> ${pjsbase}/${userf}.new2
+#   fi
+# # make sure prefs are alphabetised
+#   cat ${pjsbase}/${userf}.new2 | egrep -v ^u > ${pjsbase}/${userf}.new
+#   cat ${pjsbase}/${userf}.new2 | egrep ^u | sort >> ${pjsbase}/${userf}.new
+# done
+
+
+# Cleanup
+print_step 11 "Cleaning up"
+sudo chown -R $USER "$INSTALL_TARGET"
+sudo chown -R $USER "$USER_HOME"
+sudo rm -rf /tmp/*
+
+sudo touch /var/log/dashpi.log
+sudo chown $USER /var/log/dashpi.log
+
+
+# Restart
+print_step 12 "Restarting..."
+DURATION=$SECONDS
+echo "Installation time: $(($DURATION / 60)) minutes and $(($DURATION % 60)) seconds."
+sudo shutdown -r now
