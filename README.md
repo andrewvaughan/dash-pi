@@ -4,31 +4,36 @@
 [![License][license-image]][license-url]
 [![Build Status][build-image]][build-url]
 
-DashPi is an easy-to-use dashboard controller for the Raspberry Pi.  Simply follow the [Easy Install](#Easy-Install)
-instructions below to get started and have your Raspberry Pi rotate through your favorite web dashboards!
+DashPi is an easy-to-use web dashboard controller for the Raspberry Pi.  DashPi will rotate through your favorite
+web dashboards, and is even configurable to handle authentication and advanced, interactive scripting to get the most
+out of your data.  Simply follow the installation instructions below to get started having your Raspberry Pi rotate
+through your favorite web dashboards!
 
 
 ## Installation Instructions
 
-DashPi is officially supported on the Raspberry Pi 2 and 3.  Other linux systems, microcontrollers, and other
-Raspberry Pi models may work, but are not formally supported by this organization.
+DashPi is officially supported on the Raspberry Pi 2 and 3.  Other microcontrollers, platforms, and Raspberry Pi
+models *may* work, but are not formally supported by the project.
 
 
 ### Image Install
 
-This is the most efficient way to install DashPi.  Simply download the image below and image it to a SD Card.  Expand
-the filesystem as per normal, with `raspi-config`, and configure the `~/.dashpi.yml` file to suit your needs.
+This is the most efficient way to install DashPi.  Use your favorite torrent application to download the image below,
+and copy it to an SD Card following
+[Raspberry Pi's official instructions](https://www.raspberrypi.org/documentation/installation/installing-images/). 
+Use `raspi-config` to expand the filesystem, as-per-normal, and edit the `~/.dashpi.yml` configuration file to suit
+your needs.  Simply restart your Raspberry Pi, and your dashboards should load on startup!
 
-(Torrent coming soon)
+(Torrent coming soon.  Please use the Web Install in the meantime.)
 
 
 ### Web Install
 
-DashPi provides an easy-install script for setting up your Dashboards on the latest version of DashPi:
+DashPi also provides an easy-install script for setting up your web dashboards on the latest version of DashPi:
 
 1. Install the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/) image on your RaspberryPi's SD Card.
 
-2. Connect the Raspberry Pi to the internet using either the Ethernet connection or by [setting up wifi](https://www.raspberrypi.org/documentation/configuration/wireless/)
+2. Connect your Raspberry Pi to the internet using either the Ethernet connection or by [setting up wifi](https://www.raspberrypi.org/documentation/configuration/wireless/).
 
 3. SSH into the Raspberry Pi (or use the GUI's terminal) with the default credentials:
    
@@ -45,9 +50,9 @@ DashPi provides an easy-install script for setting up your Dashboards on the lat
    bash <(curl -s https://raw.githubusercontent.com/andrewvaughan/dash-pi/master/installer)
    ```
 
-6. [#Configuring-DashPi](Configure your DashPi) setup in the `~/.dashpi.yml` file created for you.
+6. [Configure your DashPi](https://github.com/andrewvaughan/dash-pi/blob/readme/README.md#configuring-dashpi) setup in the `~/.dashpi.yml` file created for you.
 
-7. Restart your RaspberryPi, and DashPi will launch automatically:
+7. Restart your Raspberry Pi, and DashPi will launch automatically on reboot:
    
    ```bash
    sudo reboot
@@ -61,28 +66,28 @@ DashPi provides an easy-install script for setting up your Dashboards on the lat
 ### Developer Install
 
 If you wish to contribute to DashPi, you will need to install the source from GitHub.  The requirements are packaged
-using pip, but a Makefile is provided for your convenience:
+using [pip](https://pypi.python.org/pypi/pip), but a Makefile is provided for your convenience:
 
-1. Clone developer release from git
+1. Clone developer release from git (or [fork your own repository](https://github.com/andrewvaughan/dash-pi/fork))
    
    ```bash
    git clone https://github.com/andrewvaughan/dash-pi
    cd dash-pi
    ```
 
-2. Install [pip](https://pypi.python.org/pypi/pip) dependencies
+2. Install pip dependencies
    
    ```bash
    make dependencies
    ```
 
-3. Test installation
+3. Test the installation (optional)
    
    ```bash
    make test
    ```
 
-4. Run the Python module (-h for help)
+4. Run the Python module directly (-h for help)
    
    ```bash
    python -m dashpi -h
@@ -91,7 +96,19 @@ using pip, but a Makefile is provided for your convenience:
 
 ## Configuring DashPi
 
-Coming soon.
+DashPi, by default, will look for a configuration file in your home directory at `~/.dashpi.yml`.  You can also set
+a custom configuartion by running the module with the `-c` parameter.  Configuration files have the following options:
+
+```yaml
+browser : iceweasel			# Supported browsers are firefox, iceweasel, chrome, and opera
+delay   : 15				# Rotation delay, in seconds
+
+# DashPi needs one, or more, dashboards to run
+dashboards:
+    - url : file:///opt/dashpi/welcome.html
+    - url : https://www.google.com/
+    - url : https://github.com/
+```
 
 
 ## Upgrading DashPi
@@ -109,7 +126,17 @@ Don't forget to reboot when it's done!
 
 ## FAQs
 
-TBD
+### DashPi is not working, what's up?
+
+If you are using the DashPi image or installed via the web, a log file is located at `/var/logs/dashpi.log` that may
+give you some insight into your problem.  Feel free to
+[open an issue](https://github.com/andrewvaughan/dash-pi/issues/new) if you believe you have found an issue we
+can assist with.
+
+### My question/problem is not listed here...
+
+Feel free to [open an issue](https://github.com/andrewvaughan/dash-pi/issues/new), and we will see what we can do to
+help!
 
 
 ## Contributing
@@ -133,7 +160,31 @@ scheme of the following format:
 
 ## License
 
-Please see the [Project License][license-url].
+For more information, see the [Project License][license-url].
+
+```
+The MIT License (MIT)
+
+Copyright (c) 2016 Andrew Vaughan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
 
 
 
