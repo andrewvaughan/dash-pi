@@ -81,12 +81,10 @@ description "The DashPi dashboard servce"
 author "Andrew Vaughan - https://andrewvaughan.io"
 
 setuid $USER
-
-start on runlevel [2345]
-stop on runlevel [016]
+setgid $USER
 
 script
-  exec python /opt/dashpi/dashpi -q -v -l /var/log/dashpi.log
+  exec python /opt/dashpi/dashpi -q
 end script
 EOT
 
@@ -108,7 +106,7 @@ unclutter -idle 0.1 -root > /tmp/autostart.log 2>&1
 xset s noblank >> /tmp/autostart.log 2>&1
 xset s off >> /tmp/autostart.log 2>&1
 xset -dpms >> /tmp/autostart.log 2>&1
-iceweasel >> /tmp/autostart.log 2>&1
+sudo start dashpi >> /tmp/autostart.log 2>&1
 EOT
 
 
@@ -136,69 +134,23 @@ iceweasel > /dev/null 2>&1
 sudo killall iceweasel
 sudo killall firefox
 
-cd "$USER_HOME/.mozilla/firefox"
-cd *.default
+function set_ff_pref() {
+	cd "$USER_HOME/.mozilla/firefox"
+	cd *.default
 
-# Set the homepage
-sed -i.bak "/browser.startup.homepage/d" prefs.js
-echo "user_pref(\"browser.startup.homepage\", \"file://$INSTALL_TARGET/splash/index.html\");" | tee -a prefs.js
+	sed -i.bak "/$1/d" prefs.js
+	echo "user_pref(\"$1\", $2);" | tee -a prefs.js
+}
 
+# Set the starting page
+set_ff_pref "browser.startup.homepage" "\"file://$INSTALL_TARGET/splash/index.html\""
+set_ff_pref "browser.sessionstore.resume_from_crash" "false"
 
-#
-# get_addon_id_from_xpi () { #path to .xpi file
-#     addon_id_line=`unzip -p $1 install.rdf | egrep '<em:id>' -m 1`
-#     addon_id=`echo $addon_id_line | sed "s/.*>\(.*\)<.*/\1/"`
-#     echo "$addon_id"
-# }
-#
-# get_addon_name_from_xpi () { #path to .xpi file
-#     addon_name_line=`unzip -p $1 install.rdf | egrep '<em:name>' -m 1`
-#     addon_name=`echo $addon_name_line | sed "s/.*>\(.*\)<.*/\1/"`
-#     echo "$addon_name"
-# }
-#
-# install_addon () {
-#     xpi="${PWD}/${1}"
-#     extensions_path=$2
-#     new_filename=`get_addon_id_from_xpi $xpi`.xpi
-#     new_filepath="${extensions_path}${new_filename}"
-#     addon_name=`get_addon_name_from_xpi $xpi`
-#     if [ -f "$new_filepath" ]; then
-#         echo "File already exists: $new_filepath"
-#         echo "Skipping installation for addon $addon_name."
-#     else
-#         cp "$xpi" "$new_filepath"
-#     fi
-# }
-#
-# mkdir -p /tmp/dashpi
-# cd /tmp/dashpi
-#
-# wget https://addons.mozilla.org/firefox/downloads/latest/243504/addon-243504-latest.xpi
-# install_addon addon-243504-latest.xpi "/usr/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/"
-#
-
-
-# # add in IETab2 GUID and remove IETab GUID
-#   cat ${pjsbase}/${userf} | grep extensions.enabledItems | /bin/sed 's/\")/\,\{1BC9BA34-1EED-42ca-A505-6D2F1A935BBB\}\:2\.12\.21\.1\")/' | /bin/sed 's/{77b819fa-95ad-4f2c-ac7c-486b356188a9}:1.5.20090525,//' > ${pjsbase}/tmp1
-#   cat ${pjsbase}/tmp1 | /bin/sed 's/0\.3\.8\.[0-9]*/0\.3\.8\.4/g' > ${pjsbase}/tmp
-#   /bin/sed /extensions.enabledItems/d ${pjsbase}/${userf} > ${pjsbase}/tmp2
-#   cat ${pjsbase}/tmp2 > ${pjsbase}/${userf}.new2
-#   cat ${pjsbase}/tmp >> ${pjsbase}/${userf}.new2
-# # add in IETab2 preferences
-#   echo user_pref\(\"extensions.ietab2.hasRun\"\,\ true\)\; >> ${pjsbase}/${userf}.new2
-#   echo user_pref\(\"extensions.ietab2.ietab2PrefsMigrated\"\,\ true\)\; >> ${pjsbase}/${userf}.new2
-#   echo user_pref\(\"extensions.ietab2.prefsMigrated\"\,\ true\)\; >> ${pjsbase}/${userf}.new2
-#   echo user_pref\(\"extensions.ietab2.version\"\,\ \"2.12.21.1\"\)\; >> ${pjsbase}/${userf}.new2
-#   echo user_pref\(\"extensions.update.notifyUser\"\,\ false\)\; >> ${pjsbase}/${userf}.new2
-# # if they have a preference list then migrate it
-#   if [ ! `cat ${pjsbase}/${userf} | grep user_pref\(\"ietab.filterlist\" | wc -l` -eq 0 ]; then
-#     echo "user_pref(\"extensions.ietab2.filterlist"`cat ${pjsbase}/${userf} | grep user_pref\(\"ietab.filterlist\" | sed 's/user\_pref(\"ietab\.filterlist//'`"" >> ${pjsbase}/${userf}.new2
-#   fi
-# # make sure prefs are alphabetised
-#   cat ${pjsbase}/${userf}.new2 | egrep -v ^u > ${pjsbase}/${userf}.new
-#   cat ${pjsbase}/${userf}.new2 | egrep ^u | sort >> ${pjsbase}/${userf}.new
-# done
+# Prevent dialogs and popups
+set_ff_pref "capability.policy.default.Window.open" "\"noAccess\""
+set_ff_pref "capability.policy.default.Window.alert" "\"noAccess\""
+set_ff_pref "capability.policy.default.Window.confirm" "\"noAccess\""
+set_ff_pref "capability.policy.default.Window.prompt" "\"noAccess\""
 
 
 # Cleanup
@@ -206,9 +158,6 @@ print_step 11 "Cleaning up"
 sudo chown -R $USER:$USER "$INSTALL_TARGET"
 sudo chown -R $USER:$USER "$USER_HOME"
 sudo rm -rf /tmp/*
-
-sudo touch /var/log/dashpi.log
-sudo chown $USER:$USER /var/log/dashpi.log
 
 
 # Restart
