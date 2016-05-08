@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+#pylint: disable=too-many-branches,too-many-statements
+
 
 """DashPi the web dashboard controller for Raspberry Pi"""
 
@@ -56,7 +58,30 @@ def main(args):
         logger.error('The configuration file "%s" could not be found', args.config)
         return False
     
-    logger.debug('Loaded.')
+    
+    # See if the configuration file has debugging set (command line overrides this)
+    if (ARGS.verbose is None or ARGS.verbose <= 0) and 'debug' in config and config['debug'] is True:
+        if 'verbose' in config and config['verbose'] is True:
+            logging.getLogger().setLevel(logging.DEBUG)
+        else:
+            logging.getLogger().setLevel(logging.INFO)
+    
+    
+    # See if a log file is set (command line overrides this)
+    if ARGS.log is None and 'logfile' in config:
+        log_file = logging.FileHandler(config['logfile'])
+        
+        log_file.setFormatter(
+            logging.Formatter(
+                fmt='[%(asctime)s] %(name)-12s :: %(levelname)-8s : %(message)s',
+                datefmt='%m-%d-%Y %H:%M:%S'
+            )
+        )
+
+        logging.getLogger().addHandler(log_file)
+    
+    
+    logger.debug('Configuration file loaded.')
     
     
     # Ensure the user has set a browser
@@ -124,7 +149,7 @@ def main(args):
             counter += 1
             continue
         
-        logger.debug("Loading dashboard #%d: %s", (counter % total) + 1, dashboard['url'])
+        logger.info("Loading dashboard #%d: %s", (counter % total) + 1, dashboard['url'])
         
         browser.get(dashboard['url'])
         
