@@ -103,10 +103,6 @@ fi
 # Set the RaspberryPi configuration to not turn displays off
 print_step 8 "Configuring RaspberryPi display settings"
 sudo mkdir -p "$USER_HOME/.config/openbox"
-
-
-
-USER_HOME=/home/pi
 cat <<EOT | sudo tee "$USER_HOME/.config/openbox/autostart"
 unclutter -idle 0.1 -root > /tmp/autostart.log 2>&1
 xset s noblank >> /tmp/autostart.log 2>&1
@@ -132,8 +128,22 @@ autologin-user-timeout=0
 EOT
 
 
-# # Setup iceweasel for selenium usage and kiosk mode
+# Setup iceweasel for selenium usage and kiosk mode
 print_step 10 "Configuring browser for kiosk mode"
+
+# Create the user prefs file (and kill any iceweasel instances)
+iceweasel > /dev/null 2>&1
+sudo killall iceweasel
+sudo killall firefox
+
+cd "$USER_HOME/.mozilla/firefox"
+cd *.default
+
+# Set the homepage
+sed -i.bak "/browser.startup.homepage/d" prefs.js
+echo "user_pref(\"browser.startup.homepage\", \"file://$INSTALL_TARGET/welcome/index.html\");" | tee -a prefs.js
+
+
 #
 # get_addon_id_from_xpi () { #path to .xpi file
 #     addon_id_line=`unzip -p $1 install.rdf | egrep '<em:id>' -m 1`
@@ -167,10 +177,6 @@ print_step 10 "Configuring browser for kiosk mode"
 # wget https://addons.mozilla.org/firefox/downloads/latest/243504/addon-243504-latest.xpi
 # install_addon addon-243504-latest.xpi "/usr/share/mozilla/extensions/{ec8030f7-c20a-464f-9b0e-13a3a9e97384}/"
 #
-# mkdir -p "$USER_HOME/.mozilla/firefox/*.default"
-# cat <<EOT > "$USER_HOME/.mozilla/firefox/*.default/prefs.js"
-# user_pref("browser.startup.homepage", "file:///opt/dashpi/welcome.html");
-# EOT
 
 
 # # add in IETab2 GUID and remove IETab GUID

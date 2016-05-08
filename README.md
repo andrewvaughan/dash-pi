@@ -20,7 +20,7 @@ models *may* work, but are not formally supported by the project.
 
 This is the most efficient way to install DashPi.  Use your favorite torrent application to download the image below,
 and copy it to an SD Card following
-[Raspberry Pi's official instructions](https://www.raspberrypi.org/documentation/installation/installing-images/). 
+[Raspberry Pi's official instructions](https://www.raspberrypi.org/documentation/installation/installing-images/).
 Use `raspi-config` to expand the filesystem, as-per-normal, and edit the `~/.dashpi.yml` configuration file to suit
 your needs.  Simply restart your Raspberry Pi, and your dashboards should load on startup!
 
@@ -36,7 +36,7 @@ DashPi also provides an easy-install script for setting up your web dashboards o
 2. Connect your Raspberry Pi to the internet using either the Ethernet connection or by [setting up wifi](https://www.raspberrypi.org/documentation/configuration/wireless/).
 
 3. SSH into the Raspberry Pi (or use the GUI's terminal) with the default credentials:
-   
+
    ```bash
    raspberrypi login: pi
    Password: raspberry
@@ -45,7 +45,7 @@ DashPi also provides an easy-install script for setting up your web dashboards o
 4. Expand your filesystem using `sudo raspi-config` and reboot when prompted.  Optionally, you can set timezone, locale, and other settings here, as well.
 
 5. Login again and run the DashPi installer.  On a Raspberry Pi 3, this can take 10-20 minutes:
-   
+
    ```bash
    bash <(curl -s https://raw.githubusercontent.com/andrewvaughan/dash-pi/master/installer)
    ```
@@ -53,7 +53,7 @@ DashPi also provides an easy-install script for setting up your web dashboards o
 6. [Configure your DashPi](https://github.com/andrewvaughan/dash-pi/blob/readme/README.md#configuring-dashpi) setup in the `~/.dashpi.yml` file created for you.
 
 7. Restart your Raspberry Pi, and DashPi will launch automatically on reboot:
-   
+
    ```bash
    sudo reboot
    ```
@@ -69,26 +69,26 @@ If you wish to contribute to DashPi, you will need to install the source from Gi
 using [pip](https://pypi.python.org/pypi/pip), but a Makefile is provided for your convenience:
 
 1. Clone developer release from git (or [fork your own repository](https://github.com/andrewvaughan/dash-pi/fork))
-   
+
    ```bash
    git clone https://github.com/andrewvaughan/dash-pi
    cd dash-pi
    ```
 
 2. Install pip dependencies
-   
+
    ```bash
    make dependencies
    ```
 
 3. Test the installation (optional)
-   
+
    ```bash
    make test
    ```
 
 4. Run the Python module directly (-h for help)
-   
+
    ```bash
    python -m dashpi -h
    ```
@@ -112,7 +112,7 @@ verbose : no
 
 # Your Dashboards
 dashboards:
-    - url : file:///opt/dashpi/welcome.html
+    - url : file:///opt/dashpi/welcome/index.html
     - url : https://www.google.com/
     - url : https://github.com/
 ```
@@ -150,7 +150,7 @@ help!
 
 DashPi originally supported Chromium with flash support out of the boy, but the developers who run Chromium have
 stopped providing ARM (Raspberry Pi) packages with their latest releases.  As such, we have decided to switch over to
-[Iceweasel](https://wiki.debian.org/Iceweasel) (a community variant of Firefox) that does not support Flash sites. 
+[Iceweasel](https://wiki.debian.org/Iceweasel) (a community variant of Firefox) that does not support Flash sites.
 This also helps us keep DashPi very light-weight.
 
 Chrome is still supported with DashPi, however, with the proper Chrome Driver.  Please feel free to install Chromium
