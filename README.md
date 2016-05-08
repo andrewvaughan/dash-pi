@@ -139,6 +139,17 @@ Feel free to [open an issue](https://github.com/andrewvaughan/dash-pi/issues/new
 help!
 
 
+### Why do my Flash sites not load?
+
+DashPi originally supported Chromium with flash support out of the boy, but the developers who run Chromium have
+stopped providing ARM (Raspberry Pi) packages with their latest releases.  As such, we have decided to switch over to
+[Iceweasel](https://wiki.debian.org/Iceweasel) (a community variant of Firefox) that does not support Flash sites. 
+This also helps us keep DashPi very light-weight.
+
+Chrome is still supported with DashPi, however, with the proper Chrome Driver.  Please feel free to install Chromium
+and Flash support on your own configuration!
+
+
 ## Contributing
 
 There are many ways to contribute to DashPi!  If you have an idea, or have discovered a bug, please

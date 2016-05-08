@@ -48,8 +48,10 @@ sudo apt-get -y install \
   policykit-1 rpi-update unzip upstart \
   git-core python-pip python-yaml pylint python-selenium \
   openbox x11-xserver-utils lightdm unclutter \
-  iceweasel gnash gnash-common browser-plugin-gnash lightspark browser-plugin-lightspark \
+  iceweasel \
   fonts-dejavu fonts-sil-gentium-basic ttf-mscorefonts-installer
+
+# Optional flash support: gnash gnash-common browser-plugin-gnash lightspark browser-plugin-lightspark
 
 
 # Downloading the latest stable version of DashPi
@@ -101,12 +103,16 @@ fi
 # Set the RaspberryPi configuration to not turn displays off
 print_step 8 "Configuring RaspberryPi display settings"
 sudo mkdir -p "$USER_HOME/.config/openbox"
-cat <<EOT | sudo tee "$USER_HOME/.config/openbox/environment"
-@unclutter -idle 0.1 -root
-@xset s noblank
-@xset s off
-@xset -dpms
-@sudo start dashpi
+
+
+
+USER_HOME=/home/pi
+cat <<EOT | sudo tee "$USER_HOME/.config/openbox/autostart"
+unclutter -idle 0.1 -root > /tmp/autostart.log 2>&1
+xset s noblank >> /tmp/autostart.log 2>&1
+xset s off >> /tmp/autostart.log 2>&1
+xset -dpms >> /tmp/autostart.log 2>&1
+iceweasel >> /tmp/autostart.log 2>&1
 EOT
 
 
@@ -191,12 +197,12 @@ print_step 10 "Configuring browser for kiosk mode"
 
 # Cleanup
 print_step 11 "Cleaning up"
-sudo chown -R $USER "$INSTALL_TARGET"
-sudo chown -R $USER "$USER_HOME"
+sudo chown -R $USER:$USER "$INSTALL_TARGET"
+sudo chown -R $USER:$USER "$USER_HOME"
 sudo rm -rf /tmp/*
 
 sudo touch /var/log/dashpi.log
-sudo chown $USER /var/log/dashpi.log
+sudo chown $USER:$USER /var/log/dashpi.log
 
 
 # Restart
