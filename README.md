@@ -100,10 +100,17 @@ DashPi, by default, will look for a configuration file in your home directory at
 a custom configuartion by running the module with the `-c` parameter.  Configuration files have the following options:
 
 ```yaml
+# DashPi settings
 browser : iceweasel			# Supported browsers are firefox, iceweasel, chrome, and opera
 delay   : 15				# Rotation delay, in seconds
 
-# DashPi needs one, or more, dashboards to run
+# Debugging options (command line arguments will override these options)
+logfile : /tmp/dashpi.log
+debug   : off
+verbose : no
+
+
+# Your Dashboards
 dashboards:
     - url : file:///opt/dashpi/welcome.html
     - url : https://www.google.com/
