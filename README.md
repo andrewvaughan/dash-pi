@@ -29,7 +29,11 @@ your needs.  Simply restart your Raspberry Pi, and your dashboards should load o
 
 ### Web Install
 
-DashPi also provides an easy-install script for setting up your web dashboards on the latest version of DashPi:
+DashPi also provides an easy-install script for setting up your web dashboards on the latest version of DashPi.
+
+**Warning:** This installation script **will** make significant changes to your Raspberry Pi configuration.  Ensure
+that you are either using a fresh install of Raspbian, or that you are comfortable with the changes being made in
+[this install file](https://github.com/andrewvaughan/dash-pi/blob/master/installer).  You've been warned!
 
 1. Install the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian/) image on your RaspberryPi's SD Card.
 
@@ -135,15 +139,19 @@ Don't forget to reboot when it's done!
 
 ### DashPi is not working, what's up?
 
-If you are using the DashPi image or installed via the web, a log file is located at `/var/logs/dashpi.log` that may
-give you some insight into your problem.  Feel free to
-[open an issue](https://github.com/andrewvaughan/dash-pi/issues/new) if you believe you have found an issue we
-can assist with.
+You can do some debugging on your dashpi by enabling verbose logging in your settings file (normally located at
+`~/.dashpi.yml`).  You can turn on verbose logging with the following settings:
 
-### My question/problem is not listed here...
+```yml
+logfile : /tmp/dashpi.log
+debug   : off
+verbose : no
+```
 
-Feel free to [open an issue](https://github.com/andrewvaughan/dash-pi/issues/new), and we will see what we can do to
-help!
+When you restart DashPi (`sudo restart dashpi`), you should receive a good amount of insight into the dashboards by
+looking at the log file you set.  If you believe you have discovered an unknown issue, feel free to
+[open an issue](https://github.com/andrewvaughan/dash-pi/issues/new) and we will happily look into it.  Please
+provided your log information when you open a ticket.
 
 
 ### Why do my Flash sites not load?
@@ -155,6 +163,12 @@ This also helps us keep DashPi very light-weight.
 
 Chrome is still supported with DashPi, however, with the proper Chrome Driver.  Please feel free to install Chromium
 and Flash support on your own configuration!
+
+
+### My question/problem is not listed here...
+
+Feel free to [open an issue](https://github.com/andrewvaughan/dash-pi/issues/new), and we will see what we can do to
+help!
 
 
 ## Contributing
