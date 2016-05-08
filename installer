@@ -141,7 +141,7 @@ cd *.default
 
 # Set the homepage
 sed -i.bak "/browser.startup.homepage/d" prefs.js
-echo "user_pref(\"browser.startup.homepage\", \"file://$INSTALL_TARGET/welcome/index.html\");" | tee -a prefs.js
+echo "user_pref(\"browser.startup.homepage\", \"file://$INSTALL_TARGET/splash/index.html\");" | tee -a prefs.js
 
 
 #

@@ -112,7 +112,7 @@ verbose : no
 
 # Your Dashboards
 dashboards:
-    - url : file:///opt/dashpi/welcome/index.html
+    - url : file:///opt/dashpi/splash/index.html
     - url : https://www.google.com/
     - url : https://github.com/
 ```
