@@ -47,6 +47,12 @@ def main(args):
 
     logger = logging.getLogger('DashPi')
 
+
+    # Set display
+    logger.debug('Setting display to :0.0');
+    os.environ["DISPLAY"] = ":0.0"
+
+
     # Load the user's configuration file
     logger.debug('Loading configuration from "%s"', args.config)
 
@@ -126,13 +132,23 @@ def main(args):
     logger.info("Launching %s...", config['browser'])
 
     if config['browser'] == 'chrome':
-        browser = webdriver.Chrome()
+        browser = webdriver.Chrome()    # pylint: disable=redefined-variable-type
 
     elif config['browser'] == 'opera':
         browser = webdriver.Opera()     # pylint: disable=redefined-variable-type
 
     else:
-        browser = webdriver.Firefox()   # pylint: disable=redefined-variable-type
+        fp = webdriver.FirefoxProfile()
+
+        fp.set_preference("browser.download.folderList", 2)
+        fp.set_preference("browser.download.manager.showWhenStarting", False)
+        fp.set_preference("browser.sessionstore.resume_from_crash", False)
+        fp.set_preference("capability.policy.default.Window.open", "noAccess")
+        fp.set_preference("capability.policy.default.Window.alert", "noAccess")
+        fp.set_preference("capability.policy.default.Window.confirm", "noAccess")
+        fp.set_preference("capability.policy.default.Window.prompt", "noAccess")
+
+        browser = webdriver.Firefox(firefox_profile=fp)    # pylint: disable=redefined-variable-type
 
 
     # Rotate through URLS
