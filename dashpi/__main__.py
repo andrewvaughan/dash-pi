@@ -49,8 +49,8 @@ def main(args):
 
 
     # Set display
-    logger.debug('Setting display to :0.0');
-    os.environ["DISPLAY"] = ":0.0"
+    #logger.debug('Setting display to :0.0')
+    #os.environ["DISPLAY"] = ":0.0"
 
 
     # Load the user's configuration file
@@ -138,17 +138,17 @@ def main(args):
         browser = webdriver.Opera()     # pylint: disable=redefined-variable-type
 
     else:
-        fp = webdriver.FirefoxProfile()
+        profile = webdriver.FirefoxProfile()
 
-        fp.set_preference("browser.download.folderList", 2)
-        fp.set_preference("browser.download.manager.showWhenStarting", False)
-        fp.set_preference("browser.sessionstore.resume_from_crash", False)
-        fp.set_preference("capability.policy.default.Window.open", "noAccess")
-        fp.set_preference("capability.policy.default.Window.alert", "noAccess")
-        fp.set_preference("capability.policy.default.Window.confirm", "noAccess")
-        fp.set_preference("capability.policy.default.Window.prompt", "noAccess")
+        profile.set_preference("browser.download.folderList", 2)
+        profile.set_preference("browser.download.manager.showWhenStarting", False)
+        profile.set_preference("browser.sessionstore.resume_from_crash", False)
+        profile.set_preference("capability.policy.default.Window.open", "noAccess")
+        profile.set_preference("capability.policy.default.Window.alert", "noAccess")
+        profile.set_preference("capability.policy.default.Window.confirm", "noAccess")
+        profile.set_preference("capability.policy.default.Window.prompt", "noAccess")
 
-        browser = webdriver.Firefox(firefox_profile=fp)    # pylint: disable=redefined-variable-type
+        browser = webdriver.Firefox(firefox_profile=profile)    # pylint: disable=redefined-variable-type
 
 
     # Rotate through URLS
