@@ -1,6 +1,6 @@
 # DashPi settings
-browser : iceweasel			# Supported browsers are firefox, iceweasel, chrome, and opera
-delay   : 15				# Rotation delay, in seconds
+browser : iceweasel   # Supported browsers are firefox, iceweasel, chrome, and opera
+delay   : 15          # Rotation delay, in seconds
 
 # Debugging options (command line arguments will override these options)
 logfile : /tmp/dashpi.log
