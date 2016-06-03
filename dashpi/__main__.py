@@ -148,7 +148,7 @@ def main(args):
         profile.set_preference("capability.policy.default.Window.confirm", "noAccess")
         profile.set_preference("capability.policy.default.Window.prompt", "noAccess")
 
-        browser = webdriver.Firefox(firefox_profile=profile)    # pylint: disable=redefined-variable-type
+        browser = webdriver.Firefox(firefox_profile=profile, timeout=60) # pylint: disable=redefined-variable-type
 
 
     # Rotate through URLS
