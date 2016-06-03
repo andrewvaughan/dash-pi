@@ -46,7 +46,7 @@ sudo apt-get -y upgrade
 print_step 3 "Installing system dependencies"
 sudo apt-get -y install \
   policykit-1 rpi-update unzip upstart \
-  git-core python-pip python-yaml pylint python-selenium \
+  git-core python-pip \
   openbox x11-xserver-utils lightdm unclutter \
   iceweasel \
   fonts-dejavu fonts-sil-gentium-basic ttf-mscorefonts-installer
@@ -69,7 +69,7 @@ sudo git checkout $STABLE_TAG
 
 # Installing DashPi dependencies
 print_step 5 "Installing DashPi dependencies"
-sudo pip install --no-compile -r requirements.txt
+sudo pip install -U -r requirements.txt
 
 
 # Setting up DashPi service to start on startup by default

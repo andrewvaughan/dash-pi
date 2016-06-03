@@ -140,13 +140,13 @@ def main(args):
     else:
         logger.debug("Creating Firefox profile")
         profile = webdriver.FirefoxProfile()
-        profile.set_preference("browser.download.folderList", 2)
-        profile.set_preference("browser.download.manager.showWhenStarting", False)
-        profile.set_preference("browser.sessionstore.resume_from_crash", False)
-        profile.set_preference("capability.policy.default.Window.open", "noAccess")
-        profile.set_preference("capability.policy.default.Window.alert", "noAccess")
-        profile.set_preference("capability.policy.default.Window.confirm", "noAccess")
-        profile.set_preference("capability.policy.default.Window.prompt", "noAccess")
+        #profile.set_preference("browser.download.folderList", 2)
+        #profile.set_preference("browser.download.manager.showWhenStarting", False)
+        #profile.set_preference("browser.sessionstore.resume_from_crash", False)
+        #profile.set_preference("capability.policy.default.Window.open", "noAccess")
+        #profile.set_preference("capability.policy.default.Window.alert", "noAccess")
+        #profile.set_preference("capability.policy.default.Window.confirm", "noAccess")
+        #profile.set_preference("capability.policy.default.Window.prompt", "noAccess")
 
         logger.debug("Launching Firefox with WebDriver")
         browser = webdriver.Firefox(firefox_profile=profile, timeout=60) # pylint: disable=redefined-variable-type
