@@ -23,7 +23,7 @@ function print_step() {
 # Ensure the disk has been expanded
 TOTALDISK=$(df -P . | tail -1 | awk '{print $2}')
 if [ $TOTALDISK -lt 2097152 ]; then
-    echo "Warning: Total disk space is under 2GB - have you expanded your filesystem?"
+    echo "Warning: Total disk space is under 2GB - have you expanded your filesystem with raspi-config?"
     exit 1
 fi
 
@@ -51,7 +51,7 @@ sudo apt-get -y install \
   iceweasel \
   fonts-dejavu fonts-sil-gentium-basic ttf-mscorefonts-installer
 
-# Optional flash support: gnash gnash-common browser-plugin-gnash lightspark browser-plugin-lightspark
+sudo apt-get -y autoremove
 
 
 # Downloading the latest stable version of DashPi

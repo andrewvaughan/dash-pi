@@ -39,7 +39,7 @@ that you are either using a fresh install of Raspbian, or that you are comfortab
 
 2. Connect your Raspberry Pi to the internet using either the Ethernet connection or by [setting up wifi](https://www.raspberrypi.org/documentation/configuration/wireless/).
 
-3. SSH into the Raspberry Pi (or use the GUI's terminal) with the default credentials:
+3. SSH into the Raspberry Pi (or use the GUI's terminal) with the default credentials.  If using the GUI, you may have to switch to a terminal screen with `Ctl+Alt+F2` (you can return to the GUI with `Ctl+Alt+F7`):
 
    ```bash
    raspberrypi login: pi
@@ -51,7 +51,7 @@ that you are either using a fresh install of Raspbian, or that you are comfortab
 5. Login again and run the DashPi installer.  On a Raspberry Pi 3, this can take 10-20 minutes:
 
    ```bash
-   bash <(curl -L -s https://andrewvaughan.io/install-dashpi)
+   bash <(curl -Ls https://andrewvaughan.io/install-dashpi)
    ```
 
 6. [Configure your DashPi](https://github.com/andrewvaughan/dash-pi/blob/readme/README.md#configuring-dashpi) setup in the `~/.dashpi.yml` file created for you.
