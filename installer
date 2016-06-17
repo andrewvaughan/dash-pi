@@ -63,7 +63,7 @@ cd "$INSTALL_TARGET"
 
 sudo git clone https://github.com/andrewvaughan/dash-pi "$INSTALL_TARGET"
 sudo git fetch --tags
-STABLE_TAG=$(sudo git describe --tags `sudo git rev-list --tags --max-count=1`)
+STABLE_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
 sudo git checkout $STABLE_TAG
 
 
@@ -124,33 +124,6 @@ autologin-user-timeout=0
 [XDMCPServer]
 [VNCServer]
 EOT
-
-
-# Setup iceweasel for selenium usage and kiosk mode
-print_step 10 "Configuring browser for kiosk mode"
-
-# Create the user prefs file (and kill any iceweasel instances)
-iceweasel > /dev/null 2>&1
-sudo killall iceweasel
-sudo killall firefox
-
-function set_ff_pref() {
-	cd "$USER_HOME/.mozilla/firefox"
-	cd *.default
-
-	sed -i.bak "/$1/d" prefs.js
-	echo "user_pref(\"$1\", $2);" | tee -a prefs.js
-}
-
-# Set the starting page
-set_ff_pref "browser.startup.homepage" "\"file://$INSTALL_TARGET/splash/index.html\""
-set_ff_pref "browser.sessionstore.resume_from_crash" "false"
-
-# Prevent dialogs and popups
-set_ff_pref "capability.policy.default.Window.open" "\"noAccess\""
-set_ff_pref "capability.policy.default.Window.alert" "\"noAccess\""
-set_ff_pref "capability.policy.default.Window.confirm" "\"noAccess\""
-set_ff_pref "capability.policy.default.Window.prompt" "\"noAccess\""
 
 
 # Cleanup

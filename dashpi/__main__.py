@@ -39,6 +39,7 @@ import argparse
 import selenium
 
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 from yaml import load as loadconfig
 
 
@@ -49,8 +50,9 @@ def main(args):
 
 
     # Set display
-    #logger.debug('Setting display to :0.0')
-    #os.environ["DISPLAY"] = ":0.0"
+    # @TODO - make configurable
+    logger.debug('Setting display to :0')
+    os.environ["DISPLAY"] = ":0"
 
 
     # Load the user's configuration file
@@ -140,16 +142,26 @@ def main(args):
     else:
         logger.debug("Creating Firefox profile")
         profile = webdriver.FirefoxProfile()
-        #profile.set_preference("browser.download.folderList", 2)
-        #profile.set_preference("browser.download.manager.showWhenStarting", False)
-        #profile.set_preference("browser.sessionstore.resume_from_crash", False)
-        #profile.set_preference("capability.policy.default.Window.open", "noAccess")
-        #profile.set_preference("capability.policy.default.Window.alert", "noAccess")
-        #profile.set_preference("capability.policy.default.Window.confirm", "noAccess")
-        #profile.set_preference("capability.policy.default.Window.prompt", "noAccess")
+
+        # Set homepage
+        profile.set_preference("browser.startup.homepage", "\"file://opt/dashpi/splash/index.html\"")
+        profile.set_preference("browser.sessionstore.resume_from_crash", False)
+
+        # Prevent dialogs and popups
+        profile.set_preference("browser.download.folderList", 2)
+        profile.set_preference("browser.download.manager.showWhenStarting", False)
+        profile.set_preference("browser.sessionstore.resume_from_crash", False)
+        profile.set_preference("capability.policy.default.Window.open", "noAccess")
+        profile.set_preference("capability.policy.default.Window.alert", "noAccess")
+        profile.set_preference("capability.policy.default.Window.confirm", "noAccess")
+        profile.set_preference("capability.policy.default.Window.prompt", "noAccess")
 
         logger.debug("Launching Firefox with WebDriver")
         browser = webdriver.Firefox(firefox_profile=profile, timeout=60) # pylint: disable=redefined-variable-type
+
+        logger.debug("Going fullscreen")
+        browser.find_element_by_name("/html/body").send_keys(Keys.F11)
+
 
 
     # Rotate through URLS
