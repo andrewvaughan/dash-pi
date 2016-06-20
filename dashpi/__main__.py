@@ -144,6 +144,7 @@ def main(args):
         profile = webdriver.FirefoxProfile()
 
         # Set homepage
+        # @TODO Fix this
         profile.set_preference("browser.startup.homepage", "\"file://opt/dashpi/splash/index.html\"")
         profile.set_preference("browser.sessionstore.resume_from_crash", False)
 
@@ -159,6 +160,7 @@ def main(args):
         logger.debug("Launching Firefox with WebDriver")
         browser = webdriver.Firefox(firefox_profile=profile, timeout=60) # pylint: disable=redefined-variable-type
 
+        # @TODO Fix this
         logger.debug("Going fullscreen")
         browser.find_element_by_name("/html/body").send_keys(Keys.F11)
 
